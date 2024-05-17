@@ -1,12 +1,11 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Sparkfire.Utility
 {
-    public class BlankAttribute : Attribute
+    [AttributeUsage(AttributeTargets.All, AllowMultiple = true)]
+    public class BlankAttribute : PropertyAttribute
     {
-        
+        public BlankAttribute(params object[] args) { }
     }
 }

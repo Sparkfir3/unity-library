@@ -3,32 +3,52 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Sparkfire.Utility;
+
+using Object = UnityEngine.Object;
 #if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
-using Object = UnityEngine.Object;
+#else
+using TitleGroup = UnityEngine.HeaderAttribute;
+using ReadOnly = Sparkfire.Utility.BlankAttribute;
+using LabelText = Sparkfire.Utility.BlankAttribute;
+using Button = Sparkfire.Utility.BlankAttribute;
+#endif
 
-namespace AppStateSystem {
-
+namespace AppStateSystem
+{
     public class ApplicationStateManager : Singleton<ApplicationStateManager>
     {
-    
-        [TitleGroup("Settings"), SerializeField, ReadOnly]
+        [TitleGroup("Settings")]
+        [SerializeField]
+        [ReadOnly]
         private List<ApplicationState> allStates;
         [SerializeField]
         private ApplicationState defaultState;
-        [SerializeField, Tooltip("Folder path searched under the Resources/ folder for ApplicationStates"), ReadOnly]
+        [SerializeField]
+        [Tooltip("Folder path searched under the Resources/ folder for ApplicationStates")]
+        [ReadOnly]
         private string resourcesPath = "App States";
 
-        [TitleGroup("State Info"), SerializeField, ReadOnly, LabelText("Active States")]
-        private List<ApplicationState> activeStatesList = new List<ApplicationState>();
-        [SerializeField, ReadOnly, LabelText("Active Substates")]
-        private List<ApplicationState> activeSubstatesList = new List<ApplicationState>();
-        [field: SerializeField, ReadOnly]
+        [TitleGroup("State Info")]
+        [SerializeField]
+        [ReadOnly]
+        [LabelText("Active States")]
+        private List<ApplicationState> activeStatesList = new();
+        [SerializeField]
+        [ReadOnly]
+        [LabelText("Active Substates")]
+        private List<ApplicationState> activeSubstatesList = new();
+        [field: SerializeField]
+        [field: ReadOnly]
         public bool IsLoadingScene { get; private set; }
 
-        [TitleGroup("Time Scale Values"), SerializeField, ReadOnly]
+        [TitleGroup("Time Scale Values")]
+        [SerializeField]
+        [ReadOnly]
         private float currentTimeScale = 1f;
-        [SerializeField, ReadOnly]
+        [SerializeField]
+        [ReadOnly]
         private float previousTimeScale = 1f;
 
         // ---
@@ -42,9 +62,10 @@ namespace AppStateSystem {
 
         // ----------------------------------------------------------------------------------------------------------
 
-#region Unity Functions
+        #region Unity Functions
 
-        public override void Awake() {
+        protected override void Awake()
+        {
             base.Awake();
 
             FetchStatesFromResourcesFolder();
@@ -52,9 +73,8 @@ namespace AppStateSystem {
             ActiveStates = new BitArray(allStates.Count);
         }
 
-        public override void Start() {
-            base.Start();
-
+        protected void Start()
+        {
             SetState(defaultState);
             InitializeAppStateActivity();
             OnStateChanged += ControlSubstates;
@@ -63,58 +83,61 @@ namespace AppStateSystem {
         }
 
 #if UNITY_EDITOR
-        private void LateUpdate() {
+        private void LateUpdate()
+        {
             currentTimeScale = Time.timeScale;
         }
 #endif
 
-#endregion
+        #endregion
 
         // ----------------------------------------------------------------------------------------------------------
 
-#region Initialization
+        #region Initialization
 
         //[TitleGroup("Buttons")] [Button, HideInPlayMode]
-        private void FetchStatesFromResourcesFolder() {
+        private void FetchStatesFromResourcesFolder()
+        {
             allStates.Clear();
             statesAsObject = Resources.LoadAll(resourcesPath, typeof(ApplicationState));
-            for(int i = 0; i < statesAsObject.Length; i++) {
-                allStates.Add((ApplicationState)statesAsObject[i]);
-            }
+            for(int i = 0; i < statesAsObject.Length; i++) allStates.Add((ApplicationState)statesAsObject[i]);
         }
 
         //[TitleGroup("Buttons")] [Button, HideInPlayMode]
-        private void InitializeStateIDs() {
-            for(int i = 0; i < allStates.Count; i++) {
-                allStates[i].StateID = i;
-            }
+        private void InitializeStateIDs()
+        {
+            for(int i = 0; i < allStates.Count; i++) allStates[i].StateID = i;
         }
 
-        private void InitializeAppStateActivity() {
+        private void InitializeAppStateActivity()
+        {
             int count = 0;
-            foreach(ApplicationStateBasedActivity activity in FindObjectsOfType<ApplicationStateBasedActivity>(true)) {
+            foreach(ApplicationStateBasedActivity activity in FindObjectsOfType<ApplicationStateBasedActivity>(true))
                 if(activity.Initialize())
                     count++;
-            }
             //Debug.Log($"ApplicationStateManager initialized {count} ApplicationStateBasedActivity scripts");
         }
 
-#endregion
+        #endregion
 
         // ----------------------------------------------------------------------------------------------------------
 
-#region State Control
+        #region State Control
 
-        public void SetState(ApplicationState state) {
+        public void SetState(ApplicationState state)
+        {
             //Debug.Log($"Setting app state to {state.name}");
-            if(!IsBlocked(state)) {
+            if(!IsBlocked(state))
+            {
                 // Toggle states off if they are already on
-                if(state.Toggle && IsStateActive(state)) {
+                if(state.Toggle && IsStateActive(state))
+                {
                     ActiveStates[state.StateID] = false;
                     OnDisableState(state);
                 }
                 // Otherwise, add the state
-                else {
+                else
+                {
                     // Override
                     CheckStateOverride(state);
 
@@ -136,15 +159,18 @@ namespace AppStateSystem {
         /// <param name="endCondition">Condition on when to end transition</param>
         /// <param name="timeout">If greater than 0, the amount of time before the transition ends on its own</param>
         /// <returns></returns>
-        public IEnumerator BlendIntoState(ApplicationState state, Func<bool> endCondition, float timeout = 0f) {
+        public IEnumerator BlendIntoState(ApplicationState state, Func<bool> endCondition, float timeout = 0f)
+        {
             ActiveStates[state.StateID] = true;
             OnEnableState(state);
             OnStateChanged?.Invoke();
 
             float timer = 0f;
-            while(!endCondition.Invoke()) {
+            while (!endCondition.Invoke())
+            {
                 yield return null;
-                if(timeout > 0) {
+                if(timeout > 0)
+                {
                     timer += Time.deltaTime;
                     if(timer >= timeout)
                         break;
@@ -158,28 +184,32 @@ namespace AppStateSystem {
 
         // ---
 
-        public bool IsBlocked(ApplicationState state) {
-            foreach(ApplicationState otherState in state.BlockedBy) {
+        public bool IsBlocked(ApplicationState state)
+        {
+            foreach(ApplicationState otherState in state.BlockedBy)
                 if(ActiveStates[otherState.StateID])
                     return true;
-            }
-            foreach(ApplicationState otherState in state.SubstateOf) {
+            foreach(ApplicationState otherState in state.SubstateOf)
                 if(!ActiveStates[otherState.StateID])
                     return true;
-            }
             return false;
         }
 
-        public void CheckStateOverride(ApplicationState state) {
-            if(!state.DoNotOverrideAny) {
-                for(int i = 0; i < allStates.Count; i++) {
+        public void CheckStateOverride(ApplicationState state)
+        {
+            if(!state.DoNotOverrideAny)
+                for(int i = 0; i < allStates.Count; i++)
+                {
                     if(i == state.StateID)
                         continue;
 
                     bool stateActive = ActiveStates[i]; // && state.DoNotOverride.Contains(allStates[i]);
-                    if(!allStates[i].CantOverrideByDefault) {
+                    if(!allStates[i].CantOverrideByDefault)
+                    {
                         stateActive &= state.DoNotOverride.Contains(allStates[i]);
-                    } else {
+                    }
+                    else
+                    {
                         if(state.AlwaysOverride.Contains(allStates[i]))
                             stateActive = false;
                     }
@@ -188,28 +218,32 @@ namespace AppStateSystem {
                         OnDisableState(allStates[i]);
                     ActiveStates[i] = stateActive;
                 }
-            }
         }
 
         // ---
 
-#region On Enable/Disable
+        #region On Enable/Disable
 
         /// <summary>
         /// Enables given state
         /// </summary>
         /// <param name="state">State to enable</param>
-        public void OnEnableState(ApplicationState state) {
-            if(state.LockCursor) {
+        public void OnEnableState(ApplicationState state)
+        {
+            if(state.LockCursor)
+            {
                 Cursor.lockState = CursorLockMode.Locked;
                 Cursor.visible = false;
-            } else {
+            }
+            else
+            {
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
             }
 
-            if(state.ControlTimeScale) {
-                switch(state.UpdateTimeScaleOnEnable) {
+            if(state.ControlTimeScale)
+                switch(state.UpdateTimeScaleOnEnable)
+                {
                     case TimeScaleControlOptions.Set:
                         SetTimeScale(state.TimeScaleOnEnable);
                         break;
@@ -217,16 +251,17 @@ namespace AppStateSystem {
                         RevertTimeScale();
                         break;
                 }
-            }
         }
 
         /// <summary>
         /// Disables given state if that state is set to Toggle on/off
         /// </summary>
         /// <param name="state">State to disable</param>
-        public void OnDisableState(ApplicationState state) {
-            if(state.ControlTimeScale) {
-                switch(state.UpdateTimeScaleOnDisable) {
+        public void OnDisableState(ApplicationState state)
+        {
+            if(state.ControlTimeScale)
+                switch(state.UpdateTimeScaleOnDisable)
+                {
                     case TimeScaleControlOptions.Set:
                         SetTimeScale(state.TimeScaleOnDisable);
                         break;
@@ -234,49 +269,50 @@ namespace AppStateSystem {
                         RevertTimeScale();
                         break;
                 }
-            }
         }
 
-#endregion
+        #endregion
 
         // ---
 
         /// <summary>
         /// Disables substates if their parent states are no longer active
         /// </summary>
-        public void ControlSubstates() {
-            foreach(ApplicationState substate in activeSubstatesList) {
-                foreach(ApplicationState parentState in substate.SubstateOf) {
-                    if(!ActiveStates[parentState.StateID] && ActiveStates[substate.StateID]) {
-                        ActiveStates[substate.StateID] = false;
-                        OnDisableState(substate);
-                    }
+        public void ControlSubstates()
+        {
+            foreach(ApplicationState substate in activeSubstatesList)
+            foreach(ApplicationState parentState in substate.SubstateOf)
+                if(!ActiveStates[parentState.StateID] && ActiveStates[substate.StateID])
+                {
+                    ActiveStates[substate.StateID] = false;
+                    OnDisableState(substate);
                 }
-            }
         }
 
         /// <summary>
         /// Updates list of states in inspector to match BitArray and actual state list
         /// </summary>
-        private void UpdateStateList() {
+        private void UpdateStateList()
+        {
             activeStatesList.Clear();
             activeSubstatesList.Clear();
-            for(int i = 0; i < allStates.Count; i++) {
-                if(ActiveStates[i]) {
+            for(int i = 0; i < allStates.Count; i++)
+                if(ActiveStates[i])
+                {
                     activeStatesList.Add(allStates[i]);
                     if(allStates[i].SubstateOf.Count > 0)
                         activeSubstatesList.Add(allStates[i]);
                 }
-            }
         }
 
-#endregion
+        #endregion
 
         // ----------------------------------------------------------------------------------------------------------
 
-#region Check States
+        #region Check States
 
-        public bool IsStateActive(ApplicationState state) {
+        public bool IsStateActive(ApplicationState state)
+        {
             return ActiveStates[state.StateID];
         }
 
@@ -285,14 +321,14 @@ namespace AppStateSystem {
         /// </summary>
         /// <param name="states">List of ApplicationStates to check</param>
         /// <returns>Whether or not every ApplicationState given is currently active</returns>
-        public bool AreAllStatesActive(List<ApplicationState> states, bool matchExactly = false) {
+        public bool AreAllStatesActive(List<ApplicationState> states, bool matchExactly = false)
+        {
             if(matchExactly && states.Count != activeStatesList.Count)
                 return false;
 
-            foreach(ApplicationState state in states) {
+            foreach(ApplicationState state in states)
                 if(!ActiveStates[state.StateID])
                     return false;
-            }
             return true;
         }
 
@@ -301,86 +337,101 @@ namespace AppStateSystem {
         /// </summary>
         /// <param name="states">List of ApplicationStates to check</param>
         /// <returns>Whether or not at least one of the given ApplicationStates is currently active</returns>
-        public bool HasAMatchingState(List<ApplicationState> states) {
-            foreach(ApplicationState state in states) {
+        public bool HasAMatchingState(List<ApplicationState> states)
+        {
+            foreach(ApplicationState state in states)
                 if(ActiveStates[state.StateID])
                     return true;
-            }
             return false;
         }
 
-        public int ActiveStateCount() {
+        public int ActiveStateCount()
+        {
             return activeStatesList.Count;
         }
 
-#endregion
+        #endregion
 
         // ----------------------------------------------------------------------------------------------------------
 
-#region Time Controls
+        #region Time Controls
 
-        private void SetTimeScale(float newTimeScale) {
+        private void SetTimeScale(float newTimeScale)
+        {
             previousTimeScale = Time.timeScale;
             Time.timeScale = newTimeScale;
         }
 
-        private void RevertTimeScale() {
+        private void RevertTimeScale()
+        {
             (previousTimeScale, Time.timeScale) = (Time.timeScale, previousTimeScale); // Swap values
         }
 
-#endregion
+        #endregion
 
         // ----------------------------------------------------------------------------------------------------------
 
-#region Scene Management
+        #region Scene Management
 
-        public IEnumerator LoadScene(int index, LoadSceneMode mode) {
+        public IEnumerator LoadScene(int index, LoadSceneMode mode)
+        {
             Debug.Log($"Loading scene index {index}");
             AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(index, mode);
             yield return new WaitUntil(() => asyncLoad.isDone);
             Instance.OnSceneChange?.Invoke();
         }
 
-        public IEnumerator LoadScene(string sceneName, LoadSceneMode mode) {
+        public IEnumerator LoadScene(string sceneName, LoadSceneMode mode)
+        {
             Debug.Log($"Loading scene named \"{sceneName}\"");
             AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName, mode);
             yield return new WaitUntil(() => asyncLoad.isDone);
             Instance.OnSceneChange?.Invoke();
         }
 
-        private static bool IsSceneLoaded(int buildIndex) {
+        private static bool IsSceneLoaded(int buildIndex)
+        {
             for(int i = 0; i < SceneManager.sceneCount; i++)
                 if(SceneManager.GetSceneAt(i).buildIndex == buildIndex)
                     return true;
             return false;
         }
 
-        public void SetIsLoadingScene(bool value) {
+        public void SetIsLoadingScene(bool value)
+        {
             IsLoadingScene = value;
         }
 
-#endregion
+        #endregion
 
         // ----------------------------------------------------------------------------------------------------------
 
-#region Debug
+        #region Debug
+
 #if UNITY_EDITOR
 
-        public string ActiveStatesAsString() {
+        public string ActiveStatesAsString()
+        {
             string output = "";
-            foreach(ApplicationState state in activeStatesList) {
-                output += $"{state.name} / ";
-            }
+            foreach(ApplicationState state in activeStatesList) output += $"{state.name} / ";
             return output;
         }
 
-        [TitleGroup("Buttons")] [Button]
-        private void ManuallySetState(ApplicationState state) {
+#if ODIN_INSPECTOR
+        [TitleGroup("Buttons")]
+#endif
+        [Button]
+        private void ManuallySetState(ApplicationState state)
+        {
             state.SetStateActive();
         }
 
-        [TitleGroup("Buttons")] [Button]
-        private void ManuallySetTimeScale(float newTimeScale = 1f, bool updatePreviousTimeScale = false) {
+#if ODIN_INSPECTOR
+        [TitleGroup("Buttons")]
+#endif
+        [Button]
+        private void ManuallySetTimeScale(float newTimeScale = 1f, bool updatePreviousTimeScale = false)
+        {
             if(updatePreviousTimeScale)
                 SetTimeScale(newTimeScale);
             else
@@ -388,8 +439,7 @@ namespace AppStateSystem {
         }
 
 #endif
-#endregion
 
+        #endregion
     }
 }
-#endif
