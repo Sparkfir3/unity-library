@@ -15,40 +15,28 @@ using LabelText = Sparkfire.Utility.BlankAttribute;
 using Button = Sparkfire.Utility.BlankAttribute;
 #endif
 
-namespace AppStateSystem
+namespace Sparkfire.AppStateSystem
 {
     public class ApplicationStateManager : Singleton<ApplicationStateManager>
     {
-        [TitleGroup("Settings")]
-        [SerializeField]
-        [ReadOnly]
+        [TitleGroup("Settings"), SerializeField, ReadOnly]
         private List<ApplicationState> allStates;
         [SerializeField]
         private ApplicationState defaultState;
-        [SerializeField]
+        [SerializeField, ReadOnly]
         [Tooltip("Folder path searched under the Resources/ folder for ApplicationStates")]
-        [ReadOnly]
-        private string resourcesPath = "App States";
+        private string resourcesPath = "AppStates";
 
-        [TitleGroup("State Info")]
-        [SerializeField]
-        [ReadOnly]
-        [LabelText("Active States")]
+        [TitleGroup("State Info"), SerializeField, ReadOnly, LabelText("Active States")]
         private List<ApplicationState> activeStatesList = new();
-        [SerializeField]
-        [ReadOnly]
-        [LabelText("Active Substates")]
+        [SerializeField, ReadOnly, LabelText("Active Substates")]
         private List<ApplicationState> activeSubstatesList = new();
-        [field: SerializeField]
-        [field: ReadOnly]
+        [field: SerializeField, ReadOnly]
         public bool IsLoadingScene { get; private set; }
 
-        [TitleGroup("Time Scale Values")]
-        [SerializeField]
-        [ReadOnly]
+        [TitleGroup("Time Scale Values"), SerializeField, ReadOnly]
         private float currentTimeScale = 1f;
-        [SerializeField]
-        [ReadOnly]
+        [SerializeField, ReadOnly]
         private float previousTimeScale = 1f;
 
         // ---
@@ -57,8 +45,8 @@ namespace AppStateSystem
 
         private BitArray ActiveStates { get; set; }
 
-        public Action OnStateChanged;
-        public Action OnSceneChange;
+        public event Action OnStateChanged;
+        public event Action OnSceneChange;
 
         // ----------------------------------------------------------------------------------------------------------
 
@@ -80,6 +68,7 @@ namespace AppStateSystem
             OnStateChanged += ControlSubstates;
             OnStateChanged += UpdateStateList;
             OnSceneChange += InitializeAppStateActivity;
+            UpdateStateList();
         }
 
 #if UNITY_EDITOR

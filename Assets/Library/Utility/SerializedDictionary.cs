@@ -7,7 +7,6 @@ namespace Sparkfire.Utility
     [Serializable]
     public class SerializedDictionary<Key, Value> : Dictionary<Key, Value>, ISerializationCallbackReceiver
     {
-
         [SerializeField, HideInInspector]
         private List<KeyValue> serializedPairs = new List<KeyValue>();
 

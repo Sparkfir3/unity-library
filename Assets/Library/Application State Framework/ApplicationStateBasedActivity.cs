@@ -11,7 +11,7 @@ using HideIf = Sparkfire.Utility.BlankAttribute;
 using ShowIf = Sparkfire.Utility.BlankAttribute;
 #endif
 
-namespace AppStateSystem
+namespace Sparkfire.AppStateSystem
 {
     public enum StateMatchCase
     {
@@ -29,22 +29,17 @@ namespace AppStateSystem
         /// <summary>
         /// The states that enable this panel
         /// </summary>
-        [field: TitleGroup("State Controls")]
-        [field: SerializeField]
-        [field: HideIf("@activeStates.Count == 0")]
+        [field: TitleGroup("State Controls"), SerializeField, HideIf("@activeStates.Count == 0")]
         [field: Tooltip("Match case required for activeStates")]
         public StateMatchCase ActiveMatchCase { get; private set; } = StateMatchCase.ContainsOne;
-        [TitleGroup("State Controls")]
-        [SerializeField]
-        [ShowIf("@activeStates.Count == 0")]
+        [TitleGroup("State Controls"), SerializeField, ShowIf("@activeStates.Count == 0")]
         [Tooltip("If no active states are given, whether or not the activity is active by default (and only disabled by inactive states)")]
         private bool activeByDefault;
         [SerializeField]
         [Tooltip("The states that enable this panel")]
         private List<ApplicationState> activeStates;
 
-        [field: SerializeField]
-        [field: HideIf("@inactiveStates.Count == 0")]
+        [field: SerializeField, HideIf("@inactiveStates.Count == 0")]
         [field: Tooltip("Match case required for inactiveStates")]
         public StateMatchCase InactiveMatchCase { get; private set; } = StateMatchCase.ContainsOne;
         [SerializeField]
@@ -53,19 +48,15 @@ namespace AppStateSystem
 
         // ---
 
-        [TitleGroup("Settings")]
-        [SerializeField]
+        [TitleGroup("Settings"), SerializeField]
         private bool controlSelfActivity = true;
         [SerializeField]
         private bool showDebugLogs = false;
-        [SerializeField]
-        [FoldoutGroup("Unity Events")]
+        [SerializeField, FoldoutGroup("Unity Events")]
         public UnityEngine.Events.UnityEvent OnInitialize;
-        [SerializeField]
-        [FoldoutGroup("Unity Events")]
+        [SerializeField, FoldoutGroup("Unity Events")]
         public UnityEngine.Events.UnityEvent OnEnter;
-        [SerializeField]
-        [FoldoutGroup("Unity Events")]
+        [SerializeField, FoldoutGroup("Unity Events")]
         public UnityEngine.Events.UnityEvent OnExit;
 
         // ---

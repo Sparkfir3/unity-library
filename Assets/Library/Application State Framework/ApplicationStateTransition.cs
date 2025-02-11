@@ -14,7 +14,7 @@ using TableList = Sparkfire.Utility.BlankAttribute;
 using HideIf = Sparkfire.Utility.BlankAttribute;
 #endif
 
-namespace AppStateSystem
+namespace Sparkfire.AppStateSystem
 {
     public class ApplicationStateTransition : MonoBehaviour
     {
@@ -28,20 +28,16 @@ namespace AppStateSystem
 
         // ---
 
-        [field: TitleGroup("Transition Controls")]
-        [field: SerializeField]
+        [field: TitleGroup("Transition Controls"), SerializeField]
         private ApplicationState nextState;
         [SerializeField]
         [Tooltip("Controls how state changes are handled during the transition")]
         private StateBlendType stateBlendSetting = StateBlendType.SwitchInMiddle;
-        [field: SerializeField]
-        [field: FoldoutGroup("Transition Events")]
+        [field: SerializeField, FoldoutGroup("Transition Events")]
         public UnityEvent PreTransition { get; private set; }
-        [field: SerializeField]
-        [field: FoldoutGroup("Transition Events")]
+        [field: SerializeField, FoldoutGroup("Transition Events")]
         public UnityEvent MidTransition { get; private set; }
-        [field: SerializeField]
-        [field: FoldoutGroup("Transition Events")]
+        [field: SerializeField, FoldoutGroup("Transition Events")]
         public UnityEvent PostTransition { get; private set; }
 
         // ---
@@ -52,18 +48,14 @@ namespace AppStateSystem
 
         // ---
 
-        [TitleGroup("Scene Loading Settings")]
-        [SerializeField]
+        [TitleGroup("Scene Loading Settings"), SerializeField]
         [Tooltip("Whether all the scenes to load should be added onto existing scenes")]
         private bool additiveSceneLoading;
-        [SerializeField]
-        [HorizontalGroup("Scenes")]
+        [SerializeField, HorizontalGroup("Scenes")]
         private float beforeSceneLoadDelay;
-        [SerializeField]
-        [HorizontalGroup("Scenes")]
+        [SerializeField, HorizontalGroup("Scenes")]
         private float afterSceneLoadDelay;
-        [SerializeField]
-        [TableList]
+        [SerializeField, TableList]
         private List<SceneToLoad> scenesToLoad;
 
         // ---
@@ -192,12 +184,11 @@ namespace AppStateSystem
     [System.Serializable]
     internal class SceneToLoad
     {
-        [field: SerializeField] public SceneType SceneToLoadType { get; private set; }
         [field: SerializeField]
-        [field: HideIf("@SceneToLoadType != SceneType.Int")]
+        public SceneType SceneToLoadType { get; private set; }
+        [field: SerializeField, HideIf("@SceneToLoadType != SceneType.Int")]
         public int SceneIndex { get; private set; }
-        [field: SerializeField]
-        [field: HideIf("@SceneToLoadType != SceneType.String")]
+        [field: SerializeField, HideIf("@SceneToLoadType != SceneType.String")]
         public string SceneName { get; private set; }
 
         // ---

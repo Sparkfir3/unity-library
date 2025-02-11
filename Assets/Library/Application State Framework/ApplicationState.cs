@@ -13,7 +13,7 @@ using HideIf = Sparkfire.Utility.BlankAttribute;
 using ShowIf = Sparkfire.Utility.BlankAttribute;
 #endif
 
-namespace AppStateSystem
+namespace Sparkfire.AppStateSystem
 {
     public enum TimeScaleControlOptions
     {
@@ -27,15 +27,13 @@ namespace AppStateSystem
     [CreateAssetMenu(menuName = "Application State", fileName = "Application State")]
     public class ApplicationState : ScriptableObject
     {
-        [field: SerializeField]
-        [field: ReadOnly]
+        [field: SerializeField, ReadOnly]
         [field: Tooltip("Controlled and used by the ApplicationStateManager, and is managed only at runtime. Should not be used anywhere else.")]
         public int StateID { get; set; } = -1;
 
         // ---
 
-        [field: TitleGroup("State Interactions")]
-        [field: SerializeField]
+        [field: TitleGroup("State Interactions"), SerializeField]
         [field: Tooltip("Requires all of the following states in order to be active")]
         public List<ApplicationState> SubstateOf { get; private set; }
         [field: SerializeField]
@@ -44,24 +42,18 @@ namespace AppStateSystem
 
         #region Override
 
-        [field: SerializeField]
+        [field: SerializeField, FoldoutGroup("Override Controls")]
         [field: Tooltip("If true, does not override any state")]
-        [field: FoldoutGroup("Override Controls")]
         public bool DoNotOverrideAny { get; private set; }
-        [field: SerializeField]
+        [field: SerializeField, LabelText("Can\'t Override By Default"), FoldoutGroup("Override Controls")]
         [field: Tooltip("Whether or not the state can be overriden by default. Can still be overwritten by AlwaysOverride")]
-        [field: LabelText("Can\'t Override By Default")]
-        [field: FoldoutGroup("Override Controls")]
         public bool CantOverrideByDefault { get; private set; }
 
-        [field: SerializeField]
+        [field: SerializeField, HideIf("@DoNotOverrideAny"), FoldoutGroup("Override Controls")]
         [field: Tooltip("Does not override the selected states")]
-        [field: HideIf("@DoNotOverrideAny")]
-        [field: FoldoutGroup("Override Controls")]
         public List<ApplicationState> DoNotOverride { get; private set; }
-        [field: SerializeField]
+        [field: SerializeField, FoldoutGroup("Override Controls")]
         [field: Tooltip("States to always override, even if CantOverrideByDefault is true")]
-        [field: FoldoutGroup("Override Controls")]
         public List<ApplicationState> AlwaysOverride { get; private set; }
 
         #endregion
@@ -72,32 +64,22 @@ namespace AppStateSystem
 
         // ---
 
-        [field: TitleGroup("Time Scale")]
-        [field: SerializeField]
+        [field: TitleGroup("Time Scale"), SerializeField]
         public bool ControlTimeScale { get; private set; } = false;
 
-        [field: SerializeField]
-        [field: ShowIf("@ControlTimeScale")]
-        [field: FoldoutGroup("Time Scale Options")]
+        [field: SerializeField, ShowIf("@ControlTimeScale"), FoldoutGroup("Time Scale Options")]
         public TimeScaleControlOptions UpdateTimeScaleOnEnable { get; private set; } = TimeScaleControlOptions.Set;
-        [field: SerializeField]
-        [field: ShowIf("@ControlTimeScale && UpdateTimeScaleOnEnable == TimeScaleControlOptions.Set")]
-        [field: FoldoutGroup("Time Scale Options")]
+        [field: SerializeField, ShowIf("@ControlTimeScale && UpdateTimeScaleOnEnable == TimeScaleControlOptions.Set"), FoldoutGroup("Time Scale Options")]
         public float TimeScaleOnEnable { get; private set; } = 0f;
 
-        [field: SerializeField]
-        [field: ShowIf("@ControlTimeScale")]
-        [field: FoldoutGroup("Time Scale Options")]
+        [field: SerializeField, ShowIf("@ControlTimeScale"), FoldoutGroup("Time Scale Options")]
         public TimeScaleControlOptions UpdateTimeScaleOnDisable { get; private set; } = TimeScaleControlOptions.None;
-        [field: SerializeField]
-        [field: ShowIf("@ControlTimeScale && UpdateTimeScaleOnDisable == TimeScaleControlOptions.Set")]
-        [field: FoldoutGroup("Time Scale Options")]
+        [field: SerializeField, ShowIf("@ControlTimeScale && UpdateTimeScaleOnDisable == TimeScaleControlOptions.Set"), FoldoutGroup("Time Scale Options")]
         public float TimeScaleOnDisable { get; private set; } = 1f;
 
         // ---
 
-        [field: TitleGroup("Misc")]
-        [field: SerializeField]
+        [field: TitleGroup("Misc"), SerializeField]
         public bool LockCursor { get; private set; } = false;
 
         // ----------------------------------------------------------------------------------------------------------

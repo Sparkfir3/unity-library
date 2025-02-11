@@ -11,7 +11,6 @@ namespace Sparkfire.Utility
     [Serializable]
     public class WeightedChance<T>
     {
-
 #if ODIN_INSPECTOR
         [Sirenix.OdinInspector.ReadOnly]
 #endif
