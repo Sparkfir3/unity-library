@@ -51,6 +51,7 @@ namespace Sparkfire.Utility
 #endif
         private List<WeightedChanceEntry> entries = new();
 
+        [NonSerialized]
         private bool hasInitializedPercents;
 
         #endregion
@@ -85,11 +86,17 @@ namespace Sparkfire.Utility
 
         // ------------------------------
 
-        #region Info
+        #region Get Info
 
         public bool ContainsItem(T item)
         {
             return entries.Any(x => x.value.Equals(item));
+        }
+
+        public float GetTotalWeight()
+        {
+            Validate();
+            return totalWeight;
         }
 
         public float GetWeight(T item)
@@ -97,15 +104,16 @@ namespace Sparkfire.Utility
             foreach(WeightedChanceEntry entry in entries)
                 if(entry.value.Equals(item))
                     return entry.weight;
-            return 0;
+            return 0f;
         }
 
         public float GetPercent(T item)
         {
+            Validate();
             foreach(WeightedChanceEntry entry in entries)
                 if(entry.value.Equals(item))
                     return entry.percent;
-            return 0;
+            return 0f;
         }
 
         #endregion
