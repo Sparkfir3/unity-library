@@ -12,6 +12,7 @@ namespace Sparkfire.Utility.Editor
             VisualTreeAsset treeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/Library/Utility/Editor/WeightedChance.uxml");
             root.Add(treeAsset.Instantiate());
 
+            root.Q<FloatField>("TotalWeight").SetEnabled(false);
             root.Q<Foldout>("Foldout").text = property.displayName;
 
             return root;

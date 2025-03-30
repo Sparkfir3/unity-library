@@ -12,16 +12,16 @@ namespace Sparkfire.Utility
     [Serializable]
     public class WeightedChance<T>
     {
-        [SerializeField]
-#if ODIN_INSPECTOR
-        [Sirenix.OdinInspector.TableList]
-#endif
-        private List<WeightedChanceEntry<T>> entries;
 #if ODIN_INSPECTOR
         [Sirenix.OdinInspector.ReadOnly]
 #endif
         [SerializeField]
         private float totalWeight;
+        [SerializeField]
+#if ODIN_INSPECTOR
+        [Sirenix.OdinInspector.TableList]
+#endif
+        private List<WeightedChanceEntry<T>> entries;
 
         private bool hasInitializedPercents = false;
 

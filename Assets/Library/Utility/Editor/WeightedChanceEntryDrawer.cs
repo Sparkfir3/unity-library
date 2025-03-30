@@ -13,6 +13,7 @@ namespace Sparkfire.Utility.Editor
             root.Add(treeAsset.Instantiate());
 
             root.Q<FloatField>("Percent").SetEnabled(false);
+            root.Q<FloatField>("Percent").formatString = "P2";
 
             return root;
         }
