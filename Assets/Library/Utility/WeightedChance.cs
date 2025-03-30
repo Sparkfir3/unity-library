@@ -12,45 +12,52 @@ namespace Sparkfire.Utility
     [Serializable]
     public class WeightedChance<T>
     {
+        [Serializable]
+        public class WeightedChanceEntry
+        {
+#if ODIN_INSPECTOR
+        [field: Sirenix.OdinInspector.ReadOnly, Sirenix.OdinInspector.TableColumnWidth(-100)]
+#endif
+            [field: SerializeField]
+            public float percent;
+#if ODIN_INSPECTOR
+        [Sirenix.OdinInspector.TableColumnWidth(-100)]
+#endif
+            public float weight;
+            public T value;
+
+            public WeightedChanceEntry(float w, T val)
+            {
+                if(w < 0)
+                    throw new InvalidOperationException($"Weight cannot be a negative number (weight given was {w})");
+
+                weight = w;
+                value = val;
+            }
+        }
+
+        // ------------------------------
+
+        #region Variables
+
 #if ODIN_INSPECTOR
         [Sirenix.OdinInspector.ReadOnly]
 #endif
         [SerializeField]
-        private float totalWeight;
+        private float totalWeight = 0;
         [SerializeField]
 #if ODIN_INSPECTOR
         [Sirenix.OdinInspector.TableList]
 #endif
-        private List<WeightedChanceEntry<T>> entries;
+        private List<WeightedChanceEntry> entries = new();
 
-        private bool hasInitializedPercents = false;
-
-        // ------------------------------------------------------------------------------------
-
-        #region Constructors
-
-        public WeightedChance()
-        {
-            totalWeight = 0;
-            entries = new List<WeightedChanceEntry<T>>();
-        }
-
-        public WeightedChance(params WeightedChanceEntry<T>[] entryList)
-        {
-            entries = entryList.ToList();
-            Initialize();
-        }
+        private bool hasInitializedPercents;
 
         #endregion
 
-        // ---
+        // ------------------------------
 
         #region Initialize
-
-        private void Initialize()
-        {
-            Validate();
-        }
 
         private void CalculateTotalWeight()
         {
@@ -59,8 +66,8 @@ namespace Sparkfire.Utility
 
         private void CalculatePercents()
         {
-            foreach(WeightedChanceEntry<T> entry in entries)
-                entry.Percent = totalWeight > 0f ? entry.weight / totalWeight : 0f;
+            foreach(WeightedChanceEntry entry in entries)
+                entry.percent = totalWeight > 0f ? entry.weight / totalWeight : 0f;
             hasInitializedPercents = true;
         }
 
@@ -76,7 +83,7 @@ namespace Sparkfire.Utility
 
         #endregion
 
-        // ------------------------------------------------------------------------------------
+        // ------------------------------
 
         #region Info
 
@@ -87,7 +94,7 @@ namespace Sparkfire.Utility
 
         public float GetWeight(T item)
         {
-            foreach(WeightedChanceEntry<T> entry in entries)
+            foreach(WeightedChanceEntry entry in entries)
                 if(entry.value.Equals(item))
                     return entry.weight;
             return 0;
@@ -95,32 +102,21 @@ namespace Sparkfire.Utility
 
         public float GetPercent(T item)
         {
-            foreach(WeightedChanceEntry<T> entry in entries)
+            foreach(WeightedChanceEntry entry in entries)
                 if(entry.value.Equals(item))
-                    return entry.Percent;
+                    return entry.percent;
             return 0;
         }
 
         #endregion
 
-        // ------------------------------------------------------------------------------------
+        // ------------------------------
 
         #region Add & Update Entries
 
-        public void Add()
-        {
-            Debug.Log("Test");
-            Add(default, 0f);
-        }
-
         public void Add(T item, float weight)
         {
-            WeightedChanceEntry<T> newEntry = new WeightedChanceEntry<T>(weight, item);
-            Add(newEntry);
-        }
-
-        public void Add(WeightedChanceEntry<T> newEntry)
-        {
+            WeightedChanceEntry newEntry = new WeightedChanceEntry(weight, item);
             entries.Add(newEntry);
             totalWeight += newEntry.weight;
             CalculatePercents();
@@ -137,7 +133,7 @@ namespace Sparkfire.Utility
         /// <exception cref="InvalidOperationException">If new weight would be negative</exception>
         public bool Update(T item, float weight, bool additive = false, bool zeroClamp = true)
         {
-            foreach(WeightedChanceEntry<T> entry in entries)
+            foreach(WeightedChanceEntry entry in entries)
             {
                 if(entry.value.Equals(item))
                 {
@@ -181,7 +177,7 @@ namespace Sparkfire.Utility
 
         #endregion
 
-        // ------------------------------------------------------------------------------------
+        // ------------------------------
 
         #region Get Entries
 
@@ -202,53 +198,16 @@ namespace Sparkfire.Utility
                 throw new InvalidOperationException($"Total weight of all entries {totalWeight} must be greater than zero.");
 
             float chance = (float)random.NextDouble();
-            foreach(WeightedChanceEntry<T> entry in entries)
+            foreach(WeightedChanceEntry entry in entries)
             {
-                if(chance <= entry.Percent)
+                if(chance <= entry.percent)
                     return entry.value;
                 else
-                    chance -= entry.Percent;
+                    chance -= entry.percent;
             }
             return entries[^1].value;
         }
 
         #endregion
-
-    }
-
-    [Serializable]
-    public class WeightedChanceEntry<T>
-    {
-
-#if ODIN_INSPECTOR
-        [field: Sirenix.OdinInspector.ReadOnly, Sirenix.OdinInspector.TableColumnWidth(-100)]
-#endif
-        [field: SerializeField]
-        public float Percent;
-#if ODIN_INSPECTOR
-        [Sirenix.OdinInspector.TableColumnWidth(-100)]
-#endif
-        public float weight;
-        public T value;
-
-        public WeightedChanceEntry(float w, T val)
-        {
-            if(w < 0)
-                throw new InvalidOperationException($"Weight cannot be a negative number (weight given was {w})");
-
-            weight = w;
-            value = val;
-        }
     }
 }
-
-/* Example:
- *
- * WeightedChance<Func<float>> weightedChance = new WeightedChance<Func<float>>(
- *     new WeightedChanceEntry<Func<float>>(1, x => { return x; }),
- *     new WeightedChanceEntry<Func<float>>(1, x => { return x + 2; }),
- *     new WeightedChanceEntry<Func<float>>(2, x => { return x - 2; }),
- * );
- * return weightedChance.GetRandomEntry().Invoke(i);
- *
- */

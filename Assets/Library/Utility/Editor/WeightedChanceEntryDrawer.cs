@@ -2,9 +2,10 @@ using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
+#if !ODIN_INSPECTOR
 namespace Sparkfire.Utility.Editor
 {
-    [CustomPropertyDrawer(typeof(WeightedChanceEntry<>))]
+    [CustomPropertyDrawer(typeof(WeightedChance<>.WeightedChanceEntry))]
     public class WeightedChanceEntryDrawer : PropertyDrawer
     {
         public override VisualElement CreatePropertyGUI(SerializedProperty property)
@@ -61,3 +62,4 @@ namespace Sparkfire.Utility.Editor
         }
     }
 }
+#endif

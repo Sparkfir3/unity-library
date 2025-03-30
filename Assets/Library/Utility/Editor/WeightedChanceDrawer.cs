@@ -1,6 +1,7 @@
 using UnityEditor;
 using UnityEngine.UIElements;
 
+#if !ODIN_INSPECTOR
 namespace Sparkfire.Utility.Editor
 {
     [CustomPropertyDrawer(typeof(WeightedChance<>))]
@@ -19,3 +20,4 @@ namespace Sparkfire.Utility.Editor
         }
     }
 }
+#endif
