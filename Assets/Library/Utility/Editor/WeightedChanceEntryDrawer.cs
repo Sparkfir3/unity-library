@@ -8,10 +8,15 @@ namespace Sparkfire.Utility.Editor
     [CustomPropertyDrawer(typeof(WeightedChance<>.WeightedChanceEntry))]
     public class WeightedChanceEntryDrawer : PropertyDrawer
     {
+        /// <summary>
+        /// Meta File GUID of WeightedChanceEntry.uxml
+        /// </summary>
+        private const string VISUAL_TREE_ASSET_GUID = "b768560075390e84b860429afd76e382";
+
         public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
             VisualElement root = new();
-            VisualTreeAsset treeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/Library/Utility/Editor/WeightedChanceEntry.uxml");
+            VisualTreeAsset treeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(AssetDatabase.GUIDToAssetPath(VISUAL_TREE_ASSET_GUID));
             root.Add(treeAsset.Instantiate());
 
             InitializePercentField(root);
