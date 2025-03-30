@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <ui:VisualElement style="flex-grow: 1; padding-right: 2px;">
+        <ui:Foldout text="Foldout" name="Foldout">
+            <ui:ListView header-title="Entries" show-add-remove-footer="true" show-border="true" show-bound-collection-size="false" name="Entries" binding-path="entries" show-alternating-row-backgrounds="All" reorderable="true" show-foldout-header="false" virtualization-method="DynamicHeight" reorder-mode="Animated" style="display: flex; margin-bottom: 2px; margin-left: -5px;" />
+            <ui:FloatField label="Total Weight" binding-path="totalWeight" name="TotalWeight" readonly="true" focusable="false" style="margin-top: 2px; margin-left: -5px;" />
+        </ui:Foldout>
+    </ui:VisualElement>
+</ui:UXML>

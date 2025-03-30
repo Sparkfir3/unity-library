@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <ui:VisualElement style="flex-grow: 0; flex-direction: row; flex-shrink: 1;">
+        <ui:FloatField binding-path="Percent" name="Percent" readonly="true" style="flex-shrink: 1; flex-grow: 1; width: 5px; margin-right: 5px; margin-left: 0;" />
+        <ui:FloatField binding-path="weight" name="Weight" style="flex-shrink: 1; flex-grow: 1; width: 50px; margin-right: 5px; margin-left: 0;" />
+        <ui:FloatField binding-path="value" name="Value" style="flex-shrink: 1; flex-grow: 1; width: 100px; margin-right: 0; margin-left: 0;" />
+    </ui:VisualElement>
+</ui:UXML>
